@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { verifyState } from "@/lib/google/auth";
+import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
 // TODO(deploy): add https://task4all.com/api/google/callback to the Google Cloud Console
@@ -20,6 +21,14 @@ export async function GET(req: NextRequest) {
   const userId = verifyState(state);
   if (!userId) {
     return NextResponse.redirect(`${APP_URL}/meetings?error=invalid_state`);
+  }
+
+  // Confirm the currently logged-in user is the one who initiated the OAuth flow.
+  // Prevents a stale or shared link from writing tokens to a different account.
+  const supabase = await createClient();
+  const { data: { user: sessionUser } } = await supabase.auth.getUser();
+  if (!sessionUser || sessionUser.id !== userId) {
+    return NextResponse.redirect(`${APP_URL}/meetings?error=session_mismatch`);
   }
 
   const oauth2 = new google.auth.OAuth2(

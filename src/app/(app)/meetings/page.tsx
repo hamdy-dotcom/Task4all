@@ -36,7 +36,7 @@ export default async function MeetingsPage() {
   const weekEnd = isoDate(sunday);
 
   // Fetch in parallel
-  const [initialEvents, { meetings: upcomingMeetings, hasMore }, profileRows_, workItemRows_] =
+  const [{ events: initialEvents, googleStatus: initialGoogleStatus }, { meetings: upcomingMeetings, hasMore }, profileRows_, workItemRows_] =
     await Promise.all([
       getMeetingsForRange(weekStart, weekEnd),
       getUpcomingMeetings(8),
@@ -83,6 +83,7 @@ export default async function MeetingsPage() {
           profiles={profiles}
           workItems={workItems}
           currentUserId={user.id}
+          initialGoogleStatus={initialGoogleStatus}
         />
       </div>
 

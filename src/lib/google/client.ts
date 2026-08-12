@@ -2,6 +2,13 @@
 import { google } from "googleapis";
 import { createServiceClient } from "@/lib/supabase/service";
 
+export class NeverConnectedError extends Error {
+  constructor() {
+    super("Google Calendar not connected.");
+    this.name = "NeverConnectedError";
+  }
+}
+
 export class ReconnectRequiredError extends Error {
   constructor() {
     super("Google account disconnected — please reconnect.");
@@ -26,7 +33,8 @@ export async function getCalendarClient(userId: string) {
     .eq("user_id", userId)
     .single();
 
-  if (!account?.refresh_token) throw new ReconnectRequiredError();
+  if (!account) throw new NeverConnectedError();
+  if (!account.refresh_token) throw new ReconnectRequiredError();
 
   const oauth2 = makeOAuth2();
   oauth2.setCredentials({

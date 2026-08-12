@@ -7,6 +7,7 @@ import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import {
   getCalendarClient,
+  NeverConnectedError,
   ReconnectRequiredError,
 } from "@/lib/google/client";
 
@@ -43,6 +44,13 @@ export interface CalendarGoogleEvent {
 }
 
 export type AnyCalendarEvent = CalendarMeeting | CalendarGoogleEvent;
+
+export type GoogleCalendarStatus = "ok" | "never_connected" | "reconnect_required";
+
+export interface MeetingsForRangeResult {
+  events: AnyCalendarEvent[];
+  googleStatus: GoogleCalendarStatus;
+}
 
 export type CancelMeetingState = { error: string } | null;
 export type AddMinuteState = { error: string } | null;
@@ -86,12 +94,12 @@ async function notifyMeeting(
 export async function getMeetingsForRange(
   weekStart: string, // YYYY-MM-DD (Monday)
   weekEnd: string    // YYYY-MM-DD (Sunday)
-): Promise<AnyCalendarEvent[]> {
+): Promise<MeetingsForRangeResult> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return [];
+  if (!user) return { events: [], googleStatus: "never_connected" };
 
   const startIso = `${weekStart}T00:00:00`;
   const endIso = `${weekEnd}T23:59:59`;
@@ -128,6 +136,7 @@ export async function getMeetingsForRange(
   );
 
   let googleEvents: CalendarGoogleEvent[] = [];
+  let googleStatus: GoogleCalendarStatus = "ok";
   try {
     const calendar = await getCalendarClient(user.id);
     const resp = await calendar.events.list({
@@ -155,11 +164,16 @@ export async function getMeetingsForRange(
           isGoogleEvent: true as const,
         };
       });
-  } catch {
-    // Not connected to Google or token error — skip
+  } catch (err) {
+    if (err instanceof NeverConnectedError) {
+      googleStatus = "never_connected";
+    } else if (err instanceof ReconnectRequiredError) {
+      googleStatus = "reconnect_required";
+    }
+    // Other errors (network, API quota): keep googleStatus "ok" and show empty
   }
 
-  return [...meetings, ...googleEvents];
+  return { events: [...meetings, ...googleEvents], googleStatus };
 }
 
 // ── getUpcomingMeetings ───────────────────────────────────────────────────────
@@ -485,7 +499,7 @@ export async function createMeeting(
       .eq("id", meetingId);
   } catch (err) {
     const msg =
-      err instanceof ReconnectRequiredError
+      (err instanceof ReconnectRequiredError || err instanceof NeverConnectedError)
         ? "reconnect_required"
         : (err as Error).message;
     calendarError = msg;
@@ -593,7 +607,7 @@ export async function retryGoogleSync(
     return {};
   } catch (err) {
     const msg =
-      err instanceof ReconnectRequiredError
+      (err instanceof ReconnectRequiredError || err instanceof NeverConnectedError)
         ? "reconnect_required"
         : (err as Error).message;
     await supabase

@@ -46,12 +46,12 @@ export default function LoginPage() {
       className="min-h-screen flex items-center justify-center p-6"
       style={{ background: "var(--color-canvas)" }}
     >
-      <div className="w-full max-w-sm flex flex-col items-center" style={{ gap: 28 }}>
+      <div className="w-full max-w-sm flex flex-col items-center" style={{ gap: 16 }}>
         {/* Logo — above the card */}
         <img
           src="/brand/logo.png"
           alt="task4all"
-          style={{ width: 180, height: "auto", display: "block" }}
+          style={{ width: 340, height: "auto", display: "block", maxWidth: "100%" }}
         />
 
         {/* Card */}

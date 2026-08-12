@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, CalendarPlus } from "lucide-react";
 import {
   getMeetingsForRange,
   type AnyCalendarEvent,
+  type GoogleCalendarStatus,
 } from "@/app/(app)/meetings/actions";
 import BookingModal from "./BookingModal";
 
@@ -44,6 +45,7 @@ interface Props {
   profiles: CalendarProfile[];
   workItems: CalendarWorkItem[];
   currentUserId: string;
+  initialGoogleStatus: GoogleCalendarStatus;
 }
 
 interface LayoutEvent {
@@ -244,6 +246,7 @@ export default function CalendarWeek({
   profiles,
   workItems,
   currentUserId,
+  initialGoogleStatus,
 }: Props) {
   const t = useTranslations("meetings");
   const router = useRouter();
@@ -255,6 +258,7 @@ export default function CalendarWeek({
   const [activeDay, setActiveDay] = useState(0); // index 0–6 into the week
   const [now, setNow] = useState<Date | null>(null);
   const [modal, setModal] = useState<{ date: string; time: string } | null>(null);
+  const [googleStatus, setGoogleStatus] = useState<GoogleCalendarStatus>(initialGoogleStatus);
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasScrolled = useRef(false);
 
@@ -298,8 +302,9 @@ export default function CalendarWeek({
       const nextEnd = isoDate(addDays(next, 6));
       setWeekStart(nextStr);
       startTransition(async () => {
-        const data = await getMeetingsForRange(nextStr, nextEnd);
-        setEvents(data);
+        const { events, googleStatus: gs } = await getMeetingsForRange(nextStr, nextEnd);
+        setEvents(events);
+        setGoogleStatus(gs);
       });
     },
     [weekStartDate]
@@ -316,16 +321,18 @@ export default function CalendarWeek({
     const todayIndex = todayDow === 0 ? 6 : todayDow - 1; // Mon=0 .. Sun=6
     setActiveDay(todayIndex);
     startTransition(async () => {
-      const data = await getMeetingsForRange(mondayStr, sundayStr);
-      setEvents(data);
+      const { events, googleStatus: gs } = await getMeetingsForRange(mondayStr, sundayStr);
+      setEvents(events);
+      setGoogleStatus(gs);
     });
   }, [weekStart]);
 
   const refresh = useCallback(() => {
     const endStr = isoDate(addDays(weekStartDate, 6));
     startTransition(async () => {
-      const data = await getMeetingsForRange(weekStart, endStr);
-      setEvents(data);
+      const { events, googleStatus: gs } = await getMeetingsForRange(weekStart, endStr);
+      setEvents(events);
+      setGoogleStatus(gs);
     });
   }, [weekStart, weekStartDate]);
 
@@ -414,6 +421,41 @@ export default function CalendarWeek({
           {t("schedule")}
         </button>
       </div>
+
+      {/* ── Google Calendar status banner ── */}
+      {googleStatus !== "ok" && (
+        <div
+          style={{
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "7px 16px",
+            background: "var(--color-warn-soft)",
+            borderBottom: "1px solid var(--color-ink-200)",
+            fontSize: 13,
+            color: "var(--color-ink-700)",
+          }}
+        >
+          <span style={{ flex: 1 }}>
+            {googleStatus === "never_connected"
+              ? "Your Google Calendar is not connected — personal events won't appear here."
+              : "Your Google Calendar connection has expired — personal events won't appear here."}
+          </span>
+          <a
+            href="/api/google/connect"
+            style={{
+              flexShrink: 0,
+              fontWeight: 600,
+              color: "var(--color-nml)",
+              textDecoration: "none",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {googleStatus === "never_connected" ? "Connect →" : "Reconnect →"}
+          </a>
+        </div>
+      )}
 
       {/* ── Day chips (narrow mode) ── */}
       {narrow && (
