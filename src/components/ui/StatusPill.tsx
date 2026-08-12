@@ -1,4 +1,6 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { Database } from "@/lib/database.types";
 
 type WorkStatus = Database["public"]["Enums"]["work_status"];
@@ -39,8 +41,8 @@ interface StatusPillProps {
   status: WorkStatus;
 }
 
-export default async function StatusPill({ status }: StatusPillProps) {
-  const t = await getTranslations("status");
+export default function StatusPill({ status }: StatusPillProps) {
+  const t = useTranslations("status");
   // Touch all keys so check-i18n validates them
   const labels: Record<WorkStatus, string> = {
     not_started: t("not_started"),

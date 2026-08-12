@@ -1,4 +1,6 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 
@@ -21,12 +23,12 @@ const APPROVAL_STYLE: Record<
   },
 };
 
-export default async function ApprovalPill({
+export default function ApprovalPill({
   status,
 }: {
   status: ApprovalStatus;
 }) {
-  const t = await getTranslations("approvals");
+  const t = useTranslations("approvals");
   // Touch all keys so check-i18n validates them
   const labels: Record<ApprovalStatus, string> = {
     pending: t("approvalStatus.pending"),
