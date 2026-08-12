@@ -1,26 +1,153 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* ── Brand (emerald) ───────────────────────────────────────────────────────── */
+  --color-nml:         #10B981;
+  --color-nml-hover:   #059669;
+  --color-nml-active:  #047857;
+  --color-nml-soft:    #D1FAE5;
+  --color-nml-softer:  #ECFDF5;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* ── Ink (slate) ───────────────────────────────────────────────────────────── */
+  --color-ink-900: #0F172A;
+  --color-ink-700: #1E293B;
+  --color-ink-600: #475569;
+  --color-ink-400: #64748B;
+  --color-ink-300: #94A3B8;
+  --color-ink-200: #CBD5E1;
+  --color-ink-100: #E2E8F0;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* ── Surfaces ──────────────────────────────────────────────────────────────── */
+  --color-surface:        #FFFFFF;
+  --color-surface-sunken: #F8FAFC;
+  --color-surface-inner:  #F1F5F9;
+  --color-canvas:         #F8FAFC;
+
+  /* ── Sidebar ───────────────────────────────────────────────────────────────── */
+  --color-sidebar-top:    #FFFFFF;
+  --color-sidebar-bottom: #ECFDF5;
+  --color-sidebar-active: #FFFFFF;
+
+  /* ── Data viz ──────────────────────────────────────────────────────────────── */
+  --color-chart-1:     #10B981;
+  --color-chart-2:     #94A3B8;
+  --color-chart-3:     #0F172A;
+  --color-chart-4:     #CBD5E1;
+  --color-chart-track: #E2E8F0;
+
+  /* ── Semantic ──────────────────────────────────────────────────────────────── */
+  /* ok/approved: deeper green (#047857) so it reads as "success", not "brand"   */
+  --color-ok:        #047857;
+  --color-ok-soft:   #D1FAE5;
+  --color-warn:      #D97706;
+  --color-warn-soft: #FEF3C7;
+  --color-alert:     #EA580C;
+  --color-alert-soft:#FFEDD5;
+  --color-crit:      #DC2626;
+  --color-crit-soft: #FEE2E2;
+
+  /* ── Shape ─────────────────────────────────────────────────────────────────── */
+  --radius-card:  16px;
+  --radius-inner: 12px;
+  --radius-row:   10px;
+  --radius-input: 8px;
+
+  /* ── Typography ────────────────────────────────────────────────────────────── */
+  --font-latin:  "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-arabic: "IBM Plex Sans Arabic", "Plus Jakarta Sans", system-ui, sans-serif;
+
+  /* ── Elevation ─────────────────────────────────────────────────────────────── */
+  --shadow-raised:  0 1px 2px rgba(15,23,42,.04), 0 4px 12px rgba(15,23,42,.05);
+  --shadow-pop:     0 8px 32px rgba(15,23,42,.10);
+  --shadow-overlay: 0 4px 6px rgba(15,23,42,.04), 0 12px 40px rgba(15,23,42,.12);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink-900);
+  font-family: var(--font-latin);
+}
+
+/* Arabic locale — switch font on body (not html) so it overrides the body rule above */
+[lang="ar"] body,
+[dir="rtl"] body {
+  font-family: var(--font-arabic);
+}
+
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* Hover utilities — safe in Server Components (no JS handlers needed) */
+.row-hover {
+  background: var(--color-surface-inner);
+  transition: background 150ms;
+}
+.row-hover:hover {
+  background: var(--color-nml-softer);
+}
+
+/* Stat/link card: lifts with shadow on hover — safe in Server Components */
+.card-hover {
+  transition: box-shadow 120ms;
+}
+.card-hover:hover {
+  box-shadow: var(--shadow-raised);
+}
+
+.btn-nml {
+  background: var(--color-nml);
+  transition: background 150ms;
+}
+.btn-nml:hover {
+  background: var(--color-nml-hover);
+}
+
+/* ── RTL directional icon flip ─────────────────────────────────────────────────
+   Apply .flip-rtl to any icon that must mirror in RTL: chevrons, back arrows,
+   the sidebar collapse toggle. Clock icons, delta arrows, and chart elements
+   must NOT receive this class.
+   ─────────────────────────────────────────────────────────────────────────── */
+[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/* ── Glass / depth treatment ──────────────────────────────────────────────────
+   .canvas-wash  — subtle brand radial blush at top-left of the page shell.
+   .glass-card   — translucent frosted panel (1px border does the separation work).
+   .glass-sidebar — sidebar blur treatment.
+   @supports fallback swaps to solid fills on browsers without backdrop-filter.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.canvas-wash {
+  background: radial-gradient(
+    ellipse 80% 60% at 0% 0%,
+    rgba(16, 185, 129, 0.055) 0%,
+    var(--color-canvas) 100%
+  );
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--color-ink-100);
+}
+
+.glass-sidebar {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-card {
+    background: var(--color-surface) !important;
+    border-color: var(--color-ink-100) !important;
+  }
+  .glass-sidebar {
+    background: linear-gradient(
+      180deg,
+      var(--color-sidebar-top) 0%,
+      var(--color-sidebar-bottom) 100%
+    ) !important;
+  }
 }
