@@ -46,29 +46,23 @@ export default function LoginPage() {
       className="min-h-screen flex items-center justify-center p-6"
       style={{ background: "var(--color-canvas)" }}
     >
-      <div
-        className="w-full max-w-sm"
-        style={{
-          background: "var(--color-surface)",
-          borderRadius: "var(--radius-card)",
-          padding: "40px 32px",
-        }}
-      >
-        {/* Logo + heading */}
-        <div className="flex flex-col items-center gap-5 mb-8">
-          <img
-            src="/brand/logo-full.png"
-            alt="task4all"
-            style={{ height: 52, width: "auto", display: "block" }}
-          />
-          <p
-            className="font-semibold"
-            style={{ fontSize: 20, lineHeight: "26px", color: "var(--color-ink-900)" }}
-          >
-            Sign in
-          </p>
-        </div>
+      <div className="w-full max-w-sm flex flex-col items-center" style={{ gap: 28 }}>
+        {/* Logo — above the card */}
+        <img
+          src="/brand/logo.png"
+          alt="task4all"
+          style={{ width: 180, height: "auto", display: "block" }}
+        />
 
+        {/* Card */}
+        <div
+          className="w-full"
+          style={{
+            background: "var(--color-surface)",
+            borderRadius: "var(--radius-card)",
+            padding: "40px 32px",
+          }}
+        >
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
           {/* Email */}
           <div className="flex flex-col gap-1.5">
@@ -224,7 +218,8 @@ export default function LoginPage() {
             {isSubmitting ? "Signing in…" : "Sign in"}
           </button>
         </form>
-      </div>
+        </div> {/* /card */}
+      </div> {/* /wrapper */}
     </div>
   );
 }

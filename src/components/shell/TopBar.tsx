@@ -394,9 +394,9 @@ export default function TopBar({
 
         {/* Logo mark */}
         <img
-          src="/brand/logo-mark.png"
+          src="/brand/favicon.png"
           alt="task4all"
-          style={{ width: 32, height: 32, display: "block", flexShrink: 0 }}
+          style={{ width: 28, height: 28, display: "block", flexShrink: 0 }}
         />
 
         <div className="flex-1" />

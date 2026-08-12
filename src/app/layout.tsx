@@ -22,6 +22,10 @@ const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
 export const metadata: Metadata = {
   title: "task4all",
   description: "Internal OKR and task system for NML",
+  icons: {
+    icon: "/brand/favicon.png",
+    apple: "/brand/favicon.png",
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

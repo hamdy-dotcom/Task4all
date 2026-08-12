@@ -149,30 +149,24 @@ export default function Sidebar({
       {/* Logo block */}
       <div
         className="flex items-center px-4"
-        style={{ height: 64, gap: 10, minHeight: 64 }}
+        style={{
+          height: 64,
+          minHeight: 64,
+          justifyContent: showLabels ? undefined : "center",
+        }}
       >
-        {/* Mark — always visible; sits on inline-start in both LTR and RTL */}
-        <img
-          src="/brand/logo-mark.png"
-          alt="task4all"
-          style={{ width: 36, height: 36, flexShrink: 0, display: "block" }}
-        />
-
-        {/* Wordmark — hidden when collapsed */}
-        {showLabels && (
-          <span
-            className="flex-1 font-semibold"
-            style={{
-              fontSize: 13,
-              lineHeight: "18px",
-              color: "var(--color-ink-900)",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {t("appName")}
-          </span>
+        {showLabels ? (
+          <img
+            src="/brand/logo.png"
+            alt="task4all"
+            style={{ width: 130, height: "auto", display: "block", flexShrink: 0 }}
+          />
+        ) : (
+          <img
+            src="/brand/favicon.png"
+            alt="task4all"
+            style={{ width: 28, height: 28, display: "block", flexShrink: 0 }}
+          />
         )}
 
         {/* Drawer: ✕ close button */}
