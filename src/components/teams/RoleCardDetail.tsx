@@ -275,7 +275,7 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
       {card.purpose && (
         <SectionCard>
           <SectionHead>{rc("purpose")}</SectionHead>
-          <BodyText>{pickLocalised(card as Record<string, unknown>, "purpose", locale)}</BodyText>
+          <BodyText>{pickLocalised(card, "purpose", locale)}</BodyText>
         </SectionCard>
       )}
 
@@ -283,7 +283,7 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
       {card.scope && (
         <SectionCard>
           <SectionHead>{rc("scope")}</SectionHead>
-          <BodyText>{pickLocalised(card as Record<string, unknown>, "scope", locale)}</BodyText>
+          <BodyText>{pickLocalised(card, "scope", locale)}</BodyText>
         </SectionCard>
       )}
 
@@ -317,7 +317,7 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
                 >
                   {tasksByCadence[cadence]!.map((t) => (
                     <li key={t.id} style={{ fontSize: 13, color: "var(--color-ink-700)", lineHeight: 1.6 }}>
-                      {pickLocalised(t as Record<string, unknown>, "body", locale)}
+                      {pickLocalised(t, "body", locale)}
                     </li>
                   ))}
                 </ul>
@@ -361,7 +361,7 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
                     <ul style={{ margin: 0, padding: "0 0 0 16px", display: "flex", flexDirection: "column", gap: 4 }}>
                       {items.map((d) => (
                         <li key={d.id} style={{ fontSize: 12, color: s.color, lineHeight: 1.5 }}>
-                          {pickLocalised(d as Record<string, unknown>, "body", locale)}
+                          {pickLocalised(d, "body", locale)}
                         </li>
                       ))}
                     </ul>
@@ -377,7 +377,7 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
       {card.indicator && (
         <SectionCard>
           <SectionHead>{rc("indicator")}</SectionHead>
-          <BodyText>{pickLocalised(card as Record<string, unknown>, "indicator", locale)}</BodyText>
+          <BodyText>{pickLocalised(card, "indicator", locale)}</BodyText>
         </SectionCard>
       )}
 
@@ -385,7 +385,7 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
       {card.gives_up && (
         <SectionCard>
           <SectionHead>{rc("givesUp")}</SectionHead>
-          <BodyText>{pickLocalised(card as Record<string, unknown>, "gives_up", locale)}</BodyText>
+          <BodyText>{pickLocalised(card, "gives_up", locale)}</BodyText>
         </SectionCard>
       )}
 
@@ -400,7 +400,7 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
           }}
         >
           <SectionHead>{rc("namedRisk")}</SectionHead>
-          <BodyText>{pickLocalised(card as Record<string, unknown>, "risk", locale)}</BodyText>
+          <BodyText>{pickLocalised(card, "risk", locale)}</BodyText>
         </div>
       )}
 
@@ -411,11 +411,11 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <p style={{ margin: 0, fontSize: 13, color: "var(--color-ink-700)" }}>
               <span style={{ fontWeight: 600 }}>{rc("branch")}: </span>
-              {pickLocalised(card as Record<string, unknown>, "branch", locale)}
+              {pickLocalised(card, "branch", locale)}
             </p>
             {card.branch_note && (
               <p style={{ margin: 0, fontSize: 13, color: "var(--color-ink-600)", lineHeight: 1.6 }}>
-                {pickLocalised(card as Record<string, unknown>, "branch_note", locale)}
+                {pickLocalised(card, "branch_note", locale)}
               </p>
             )}
             <Link
@@ -470,7 +470,7 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
               const counterpartProfile = c.counterpart_id ? profileMap.get(c.counterpart_id) : null;
               const counterpartCardId = c.counterpart_id ? profileToCard.get(c.counterpart_id) : null;
               const fallbackLabel = c.counterpart_label
-                ? pickLocalised(c as Record<string, unknown>, "counterpart_label", locale)
+                ? pickLocalised(c, "counterpart_label", locale)
                 : "—";
               const counterpartName = counterpartProfile?.full_name ?? fallbackLabel;
               return (
@@ -494,10 +494,10 @@ export async function RoleCardDetail({ card, tasks, decisions, collabs, profileM
                     )}
                   </span>
                   <span style={{ fontSize: 13, color: "var(--color-ink-700)" }}>
-                    {pickLocalised(c as Record<string, unknown>, "topic", locale)}
+                    {pickLocalised(c, "topic", locale)}
                   </span>
                   <span style={{ fontSize: 13, color: "var(--color-ink-600)" }}>
-                    {c.exchange ? pickLocalised(c as Record<string, unknown>, "exchange", locale) : "—"}
+                    {c.exchange ? pickLocalised(c, "exchange", locale) : "—"}
                   </span>
                 </div>
               );

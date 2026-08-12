@@ -4,13 +4,15 @@
  * the Arabic column is absent or empty (null | undefined | "").
  */
 export function pickLocalised(
-  row: Record<string, unknown>,
+  row: object,
   field: string,
   locale: string,
 ): string {
+  const r = row as Record<string, unknown>;
   if (locale === "ar") {
-    const ar = row[`${field}_ar`];
+    const ar = r[`${field}_ar`];
     if (ar && typeof ar === "string" && ar.trim() !== "") return ar;
   }
-  return (row[field] as string | null | undefined) ?? "";
+  const val = r[field];
+  return (typeof val === "string" ? val : null) ?? "";
 }

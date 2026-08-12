@@ -159,9 +159,9 @@ export default async function ApprovalsPage() {
         <p style={{ fontSize: 14, color: "var(--color-ink-400)" }}>
           {count > 0 ? (
             count === 1 ? (
-              t("itemAwaiting", { count: <Num>{count}</Num> })
+              t("itemAwaiting", { count })
             ) : (
-              t("itemsAwaiting", { count: <Num>{count}</Num> })
+              t("itemsAwaiting", { count })
             )
           ) : (
             t("allCaughtUp")

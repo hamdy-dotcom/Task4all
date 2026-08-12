@@ -387,13 +387,13 @@
     "missingFields": "Missing required fields",
     "topicRequired": "Topic is required",
     "profileIdRequired": "Profile ID is required",
-    "reportingRulesList": [
-      "Everyone reports to their line leader",
-      "Line leaders report to the CEO",
-      "Super admins can see all lines",
-      "Team members see only their line",
-      "Role cards are assigned to exactly one person"
-    ]
+    "reportingRulesList": {
+      "0": "Everyone reports to their line leader",
+      "1": "Line leaders report to the CEO",
+      "2": "Super admins can see all lines",
+      "3": "Team members see only their line",
+      "4": "Role cards are assigned to exactly one person"
+    }
   },
   "initiatives": {
     "title": "Initiatives",
@@ -903,13 +903,10 @@
     "whoHeader": "Who",
     "outputHeader": "Output",
     "treeOnly": "Only four branches lift the star. Every personal metric at NML must map to one of them.",
-
     "metricName": "Revenue per Shelf Meter",
     "metricDefinition": "Total monthly revenue from our shelves divided by total contracted shelf meters. Measured monthly. Shown in every leadership meeting.",
-
     "guardrailName": "Share of shelf held by Salla merchants",
     "guardrailBody": "The star asks <em>are we succeeding?</em> The guardrail asks <em>are we still us?</em> Without it, revenue per meter can be lifted with outside suppliers — we would look excellent while drifting away from the reason we were founded. The two are always read together.",
-
     "why1Title": "It unites all three sides.",
     "why1Body": "It rises only if the merchant earns, the outlet gains and NML succeeds. No one can lift it at another's expense.",
     "why2Title": "It measures the mission, not the activity.",
@@ -918,7 +915,6 @@
     "why3Body": "Not liftable by expansion (it is a ratio), nor by stuffing the shelf (dead stock lowers it), nor by signing contracts (every new meter enters the denominator).",
     "why4Title": "It makes turnover a goal, not a by-product.",
     "why4Body": "A meter sells only if it turns, and turnover is what convinces merchants to stay and outlets to expand.",
-
     "branch1Name": "Forecast Quality",
     "branch1m1": "Recommendation hit rate",
     "branch1m2": "Forecast error: SKU × site",
@@ -939,7 +935,6 @@
     "branch4m2": "Cost per meter vs return",
     "branch4m3": "Outlet renewal rate",
     "branch4m4": "Placement impact on sales",
-
     "alt1Name": "Number of outlets",
     "alt1Why": "Lifted by signatures alone; rewards expansion before operations are proven.",
     "alt2Name": "Total revenue",
@@ -948,7 +943,6 @@
     "alt3Why": "Close to our purpose, but does not measure whether they actually sold. Kept as the guardrail.",
     "alt4Name": "Model accuracy",
     "alt4Why": "An excellent internal metric that means nothing to a merchant or an outlet.",
-
     "rhythm1Cadence": "Daily — written",
     "rhythm1Who": "Field and operations",
     "rhythm1Output": "Shelf status: what ran out, what sold, what needs intervention. Written, not a meeting.",
@@ -961,7 +955,6 @@
     "rhythm4Cadence": "Quarterly — half day",
     "rhythm4Who": "Leadership",
     "rhythm4Output": "Initiative register review · what we stopped · re-prioritisation · role cards.",
-
     "standingRuleBody": "The north star is never shown alone. It is always shown with its four branches and the guardrail. A lone number invites the comfortable interpretation; the tree forces the right question: <strong>which branch fell behind, and who owns it?</strong>"
   }
 }

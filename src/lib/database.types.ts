@@ -942,6 +942,7 @@ export type Database = {
           rejection_reason: string | null
           sort_order: number
           title: string
+          title_ar: string | null
           work_item_id: string
         }
         Insert: {
@@ -957,6 +958,7 @@ export type Database = {
           rejection_reason?: string | null
           sort_order?: number
           title: string
+          title_ar?: string | null
           work_item_id: string
         }
         Update: {
@@ -972,6 +974,7 @@ export type Database = {
           rejection_reason?: string | null
           sort_order?: number
           title?: string
+          title_ar?: string | null
           work_item_id?: string
         }
         Relationships: [
@@ -1539,6 +1542,7 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          description_ar: string | null
           due_date: string | null
           id: string
           is_continuous: boolean
@@ -1550,6 +1554,7 @@ export type Database = {
           status: Database["public"]["Enums"]["work_status"]
           team_id: string | null
           title: string
+          title_ar: string | null
           type: Database["public"]["Enums"]["work_item_type"]
           updated_at: string
         }
@@ -1564,6 +1569,7 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          description_ar?: string | null
           due_date?: string | null
           id?: string
           is_continuous?: boolean
@@ -1575,6 +1581,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["work_status"]
           team_id?: string | null
           title: string
+          title_ar?: string | null
           type: Database["public"]["Enums"]["work_item_type"]
           updated_at?: string
         }
@@ -1589,6 +1596,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          description_ar?: string | null
           due_date?: string | null
           id?: string
           is_continuous?: boolean
@@ -1600,6 +1608,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["work_status"]
           team_id?: string | null
           title?: string
+          title_ar?: string | null
           type?: Database["public"]["Enums"]["work_item_type"]
           updated_at?: string
         }
@@ -2236,6 +2245,7 @@ export type Database = {
           created_by: string | null
           created_by_name: string | null
           description: string | null
+          description_ar: string | null
           done_child_count: number | null
           due_date: string | null
           id: string | null
@@ -2255,6 +2265,7 @@ export type Database = {
           team_id: string | null
           team_name: string | null
           title: string | null
+          title_ar: string | null
           type: Database["public"]["Enums"]["work_item_type"] | null
           updated_at: string | null
         }

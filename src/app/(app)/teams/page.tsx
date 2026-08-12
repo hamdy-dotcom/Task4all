@@ -213,7 +213,10 @@ export default async function TeamsPage() {
     cardsByTeam.get(card.team_id)!.push(card);
   }
 
-  const reportingRules = t.raw("reportingRulesList") as string[];
+  const rulesObj = t.raw("reportingRulesList") as Record<string, string>;
+  const reportingRules = Object.keys(rulesObj)
+    .sort((a, b) => Number(a) - Number(b))
+    .map((k) => rulesObj[k]);
   const vacantLabel = t("vacantChip");
   const lineLeadLabel = t("leadChip");
 
