@@ -26,6 +26,7 @@ interface SubtaskFormProps {
   tasks: Task[];
   profiles: Profile[];
   defaultTaskId?: string;
+  isSuperAdmin?: boolean;
 }
 
 const inputStyle: React.CSSProperties = {
@@ -48,7 +49,7 @@ const labelStyle: React.CSSProperties = {
   color: "var(--color-ink-700)",
 };
 
-export default function SubtaskForm({ tasks, profiles, defaultTaskId }: SubtaskFormProps) {
+export default function SubtaskForm({ tasks, profiles, defaultTaskId, isSuperAdmin }: SubtaskFormProps) {
   const t = useTranslations("subtasks");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -318,6 +319,24 @@ export default function SubtaskForm({ tasks, profiles, defaultTaskId }: SubtaskF
           />
         </div>
       </div>
+
+      {/* Owner override (super_admin only) */}
+      {isSuperAdmin && profiles.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <label htmlFor="owner_id" style={labelStyle}>
+            Owner
+          </label>
+          <select id="owner_id" name="owner_id" defaultValue="" style={inputStyle}>
+            <option value="">Myself (default)</option>
+            {profiles.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.full_name ?? p.id}
+                {p.title ? ` — ${p.title}` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Assignees */}
       {profiles.length > 0 && (

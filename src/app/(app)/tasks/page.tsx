@@ -84,7 +84,25 @@ export default async function TasksPage({ searchParams }: Props) {
   }
 
   const { data: tasks } = await query;
-  const list = tasks ?? [];
+  const rawList = tasks ?? [];
+
+  // Fetch deleted_parent_title for items whose parent was deleted
+  const deletedParentMap: Record<string, string> = {};
+  if (rawList.length > 0) {
+    const { data: extras } = await supabase
+      .from("work_items")
+      .select("id, deleted_parent_title")
+      .in("id", rawList.map((r) => r.id!).filter(Boolean))
+      .not("deleted_parent_title", "is", null);
+    for (const row of extras ?? []) {
+      if (row.deleted_parent_title) deletedParentMap[row.id] = row.deleted_parent_title;
+    }
+  }
+
+  const list = rawList.map((item) => ({
+    ...item,
+    deleted_parent_title: deletedParentMap[item.id!] ?? null,
+  }));
 
   const initiatives = (allInitiatives ?? []).map((i) => ({
     id: i.id!,
@@ -230,6 +248,7 @@ type TaskItem = {
   progress: number | null;
   parent_title: string | null;
   parent_id: string | null;
+  deleted_parent_title: string | null;
   created_by_name: string | null;
   due_date: string | null;
 };
@@ -257,8 +276,11 @@ function TaskRow({
       )
     : null;
 
+  const parentLabel = item.parent_title
+    ?? (item.deleted_parent_title ? `${item.deleted_parent_title} (Deleted)` : null);
+
   const meta = [
-    item.parent_title,
+    parentLabel,
     item.created_by_name,
     dueLabel ? tc("due", { date: dueLabel }) : null,
   ]

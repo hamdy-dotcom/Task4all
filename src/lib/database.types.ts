@@ -1541,6 +1541,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           created_by: string
+          deleted_parent_title: string | null
           description: string | null
           description_ar: string | null
           due_date: string | null
@@ -1568,6 +1569,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by: string
+          deleted_parent_title?: string | null
           description?: string | null
           description_ar?: string | null
           due_date?: string | null
@@ -1595,6 +1597,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string
+          deleted_parent_title?: string | null
           description?: string | null
           description_ar?: string | null
           due_date?: string | null

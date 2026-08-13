@@ -98,6 +98,7 @@ export default async function NewInitiativePage() {
           title: p.title,
           role: p.role,
         }))}
+        isSuperAdmin={role === "super_admin"}
       />
     </div>
   );

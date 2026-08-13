@@ -10,6 +10,7 @@ import {
   rejectTask,
   updateTaskStatus,
 } from "@/app/(app)/tasks/actions";
+import { deleteWorkItem } from "@/app/(app)/work-items/delete-action";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -39,6 +40,7 @@ export default async function TaskPage({ params }: Props) {
     { data: attachments },
     { data: historyRows },
     { count: historyTotal },
+    { data: wiExtra },
   ] = await Promise.all([
     supabase.from("profiles").select("role").eq("id", user.id).single(),
     supabase
@@ -77,6 +79,11 @@ export default async function TaskPage({ params }: Props) {
       .from("work_item_history")
       .select("*", { count: "exact", head: true })
       .eq("work_item_id", id),
+    supabase
+      .from("work_items")
+      .select("deleted_parent_title")
+      .eq("id", id)
+      .single(),
   ]);
 
   if (!task) notFound();
@@ -148,6 +155,7 @@ export default async function TaskPage({ params }: Props) {
   const boundApprove = approveTask.bind(null, id);
   const boundReject = rejectTask.bind(null, id);
   const boundStatus = updateTaskStatus.bind(null, id);
+  const boundDelete = deleteWorkItem.bind(null, "/tasks");
 
   return (
     <div style={{ maxWidth: 900 }}>
@@ -184,6 +192,7 @@ export default async function TaskPage({ params }: Props) {
           ...task,
           title_ar: null,
           parent_title_ar: null,
+          deleted_parent_title: wiExtra?.deleted_parent_title ?? null,
         }}
         subtasks={(subtasks ?? []).map((s) => ({
           ...s,
@@ -206,6 +215,7 @@ export default async function TaskPage({ params }: Props) {
         approveAction={boundApprove}
         rejectAction={boundReject}
         statusAction={boundStatus}
+        deleteAction={boundDelete}
         locale={locale}
       />
     </div>

@@ -80,6 +80,11 @@ export async function createSubtask(
     return { error: t("atLeastOneMilestone") };
   }
 
+  const createdBy =
+    profile.role === "super_admin"
+      ? ((formData.get("owner_id") as string | null) || user.id)
+      : user.id;
+
   const insertPayload = {
     title: parsed.data.title,
     description: parsed.data.description ?? null,
@@ -89,7 +94,7 @@ export async function createSubtask(
     type: "subtask" as const,
     approval_status: "pending" as const,
     status: "not_started" as const,
-    created_by: user.id,
+    created_by: createdBy,
   };
 
   const { error: insertError } = await supabase
@@ -102,7 +107,7 @@ export async function createSubtask(
   const { data, error: selectError } = await supabase
     .from("work_items")
     .select("id")
-    .eq("created_by", user.id)
+    .eq("created_by", createdBy)
     .eq("type", "subtask")
     .eq("title", insertPayload.title)
     .order("created_at", { ascending: false })

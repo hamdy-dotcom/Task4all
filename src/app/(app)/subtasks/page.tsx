@@ -78,7 +78,25 @@ export default async function SubtasksPage({ searchParams }: Props) {
   }
 
   const { data: subtasks } = await query;
-  const list = subtasks ?? [];
+  const rawList = subtasks ?? [];
+
+  // Fetch deleted_parent_title for items whose parent was deleted
+  const deletedParentMap: Record<string, string> = {};
+  if (rawList.length > 0) {
+    const { data: extras } = await supabase
+      .from("work_items")
+      .select("id, deleted_parent_title")
+      .in("id", rawList.map((r) => r.id!).filter(Boolean))
+      .not("deleted_parent_title", "is", null);
+    for (const row of extras ?? []) {
+      if (row.deleted_parent_title) deletedParentMap[row.id] = row.deleted_parent_title;
+    }
+  }
+
+  const list = rawList.map((item) => ({
+    ...item,
+    deleted_parent_title: deletedParentMap[item.id!] ?? null,
+  }));
 
   return (
     <div>
@@ -245,6 +263,7 @@ type SubtaskItem = {
   milestone_done_count: number | null;
   parent_title: string | null;
   parent_id: string | null;
+  deleted_parent_title: string | null;
   created_by_name: string | null;
   due_date: string | null;
 };
@@ -265,8 +284,11 @@ async function SubtaskRow({ item }: { item: SubtaskItem }) {
       ? `${item.milestone_done_count ?? 0}/${item.milestone_count} ${tCommon("milestones")}`
       : null;
 
+  const parentLabel = item.parent_title
+    ?? (item.deleted_parent_title ? `${item.deleted_parent_title} (Deleted)` : null);
+
   const meta = [
-    item.parent_title,
+    parentLabel,
     milestoneLabel,
     item.created_by_name,
     dueLabel ? tCommon("due", { date: dueLabel }) : null,

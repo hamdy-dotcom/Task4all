@@ -14,6 +14,7 @@ import {
   rejectMilestone,
   approveAllMilestones,
 } from "@/app/(app)/subtasks/actions";
+import { deleteWorkItem } from "@/app/(app)/work-items/delete-action";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -39,6 +40,7 @@ export default async function SubtaskPage({ params }: Props) {
     { data: attachments },
     { data: historyRows },
     { count: historyTotal },
+    { data: wiExtra },
   ] = await Promise.all([
     supabase.from("profiles").select("role").eq("id", user.id).single(),
     supabase
@@ -73,6 +75,11 @@ export default async function SubtaskPage({ params }: Props) {
       .from("work_item_history")
       .select("*", { count: "exact", head: true })
       .eq("work_item_id", id),
+    supabase
+      .from("work_items")
+      .select("deleted_parent_title")
+      .eq("id", id)
+      .single(),
   ]);
 
   if (!subtask) notFound();
@@ -145,6 +152,7 @@ export default async function SubtaskPage({ params }: Props) {
   const boundReject = rejectSubtask.bind(null, id);
   const boundStatus = updateSubtaskStatus.bind(null, id);
   const boundApproveAll = approveAllMilestones.bind(null, id);
+  const boundDelete = deleteWorkItem.bind(null, "/subtasks");
 
   type ToggleFn = (prevState: Awaited<ReturnType<typeof toggleMilestone>>, formData: FormData) => Promise<Awaited<ReturnType<typeof toggleMilestone>>>;
   type ApproveFn = (prevState: Awaited<ReturnType<typeof approveMilestone>>, formData: FormData) => Promise<Awaited<ReturnType<typeof approveMilestone>>>;
@@ -191,7 +199,7 @@ export default async function SubtaskPage({ params }: Props) {
       </div>
 
       <SubtaskDetail
-        subtask={subtask}
+        subtask={{ ...subtask, deleted_parent_title: wiExtra?.deleted_parent_title ?? null }}
         milestones={(milestones ?? []).map((m) => ({
           id: m.id,
           title: m.title ?? "",
@@ -216,6 +224,7 @@ export default async function SubtaskPage({ params }: Props) {
         approveMilestoneActions={approveMilestoneActions}
         rejectMilestoneActions={rejectMilestoneActions}
         approveAllMilestonesAction={boundApproveAll}
+        deleteAction={boundDelete}
       />
     </div>
   );

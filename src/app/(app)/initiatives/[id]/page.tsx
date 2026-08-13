@@ -9,6 +9,7 @@ import {
   approveInitiative,
   rejectInitiative,
 } from "@/app/(app)/initiatives/actions";
+import { deleteWorkItem } from "@/app/(app)/work-items/delete-action";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -35,6 +36,7 @@ export default async function InitiativePage({ params }: Props) {
     { data: attachments },
     { data: historyRows },
     { count: historyTotal },
+    { data: wiExtra },
   ] = await Promise.all([
     supabase.from("profiles").select("role").eq("id", user.id).single(),
     supabase
@@ -70,6 +72,11 @@ export default async function InitiativePage({ params }: Props) {
       .from("work_item_history")
       .select("*", { count: "exact", head: true })
       .eq("work_item_id", id),
+    supabase
+      .from("work_items")
+      .select("deleted_parent_title")
+      .eq("id", id)
+      .single(),
   ]);
 
   if (!initiative) notFound();
@@ -139,6 +146,7 @@ export default async function InitiativePage({ params }: Props) {
 
   const boundApprove = approveInitiative.bind(null, id);
   const boundReject = rejectInitiative.bind(null, id);
+  const boundDelete = deleteWorkItem.bind(null, "/initiatives");
 
   const breadcrumbTitle =
     locale === "ar" && initiative.title_ar
@@ -176,7 +184,7 @@ export default async function InitiativePage({ params }: Props) {
       </div>
 
       <InitiativeDetail
-        initiative={initiative}
+        initiative={{ ...initiative, deleted_parent_title: wiExtra?.deleted_parent_title ?? null }}
         tasks={tasks ?? []}
         assignees={assignees}
         isSuperAdmin={isSuperAdmin}
@@ -187,6 +195,7 @@ export default async function InitiativePage({ params }: Props) {
         canUpload={canUpload}
         approveAction={boundApprove}
         rejectAction={boundReject}
+        deleteAction={boundDelete}
       />
     </div>
   );

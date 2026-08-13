@@ -104,6 +104,7 @@ export default async function NewTaskPage() {
           role: p.role,
         }))}
         locale={locale}
+        isSuperAdmin={profile?.role === "super_admin"}
       />
     </div>
   );

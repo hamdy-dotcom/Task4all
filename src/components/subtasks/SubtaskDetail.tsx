@@ -9,6 +9,7 @@ import {
   XCircle,
   Users,
   CheckCheck,
+  Trash2,
 } from "lucide-react";
 import { Num } from "@/components/ui/Num";
 import type { FileItemProp, HistoryEntryProp } from "@/components/work-item/types";
@@ -33,6 +34,7 @@ import {
   type RejectMilestoneState,
   type ApproveAllMilestonesState,
 } from "@/app/(app)/subtasks/actions";
+import { type DeleteWorkItemState } from "@/app/(app)/work-items/delete-action";
 
 type WorkStatus =
   | "not_started"
@@ -87,6 +89,7 @@ interface Subtask {
   team_name: string | null;
   parent_title: string | null;
   parent_id: string | null;
+  deleted_parent_title?: string | null;
   rejection_reason: string | null;
 }
 
@@ -121,6 +124,7 @@ interface SubtaskDetailProps {
   approveMilestoneActions: Record<string, ApproveMilestoneFn>;
   rejectMilestoneActions: Record<string, RejectMilestoneFn>;
   approveAllMilestonesAction: ApproveAllFn;
+  deleteAction: (prevState: DeleteWorkItemState, formData: FormData) => Promise<DeleteWorkItemState>;
 }
 
 type TabKey = "details" | "milestones" | "files" | "history";
@@ -144,6 +148,7 @@ export default function SubtaskDetail({
   approveMilestoneActions,
   rejectMilestoneActions,
   approveAllMilestonesAction,
+  deleteAction,
 }: SubtaskDetailProps) {
   const t = useTranslations("subtasks");
   const tCommon = useTranslations("common");
@@ -159,6 +164,7 @@ export default function SubtaskDetail({
   const [rejectState, doReject, isRejecting] = useActionState<RejectSubtaskState, FormData>(rejectAction, null);
   const [statusState, doStatus, isStatusPending] = useActionState<UpdateSubtaskStatusState, FormData>(statusAction, null);
   const [approveAllState, doApproveAll, isApprovingAll] = useActionState<ApproveAllMilestonesState, FormData>(approveAllMilestonesAction, null);
+  const [deleteState, doDelete, isDeleting] = useActionState<DeleteWorkItemState, FormData>(deleteAction, null);
 
   const STATUS_LABELS: Record<WorkStatus, string> = {
     not_started: tStatus("not_started"),
@@ -215,6 +221,42 @@ export default function SubtaskDetail({
           <div className="flex items-center" style={{ gap: 8, flexShrink: 0 }}>
             {subtask.status && <StatusPill status={subtask.status} />}
             {subtask.approval_status && <ApprovalPill status={subtask.approval_status} />}
+            {isSuperAdmin && (
+              <form action={doDelete} style={{ display: "contents" }}>
+                <input type="hidden" name="id" value={subtask.id ?? ""} />
+                <button
+                  type="submit"
+                  disabled={isDeleting}
+                  title="Delete subtask"
+                  onClick={(e) => {
+                    if (!window.confirm(`Delete "${subtask.title}"? This cannot be undone.`)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "999px",
+                    border: "none",
+                    background: "var(--color-crit-soft)",
+                    color: "var(--color-crit)",
+                    cursor: isDeleting ? "not-allowed" : "pointer",
+                    flexShrink: 0,
+                    opacity: isDeleting ? 0.6 : 1,
+                  }}
+                >
+                  <Trash2 size={15} />
+                </button>
+              </form>
+            )}
+            {deleteState?.error && (
+              <span style={{ fontSize: 12, color: "var(--color-crit)" }}>
+                {deleteState.error}
+              </span>
+            )}
           </div>
         </div>
 
@@ -246,7 +288,7 @@ export default function SubtaskDetail({
           className="flex flex-wrap"
           style={{ gap: 20, marginTop: 12, fontSize: 13, lineHeight: "18px", color: "var(--color-ink-600)" }}
         >
-          {subtask.parent_title && (
+          {subtask.parent_title ? (
             <span>
               <span style={{ color: "var(--color-ink-400)" }}>{t("taskLabel")} </span>
               <Link
@@ -256,7 +298,17 @@ export default function SubtaskDetail({
                 {subtask.parent_title}
               </Link>
             </span>
-          )}
+          ) : subtask.deleted_parent_title ? (
+            <span>
+              <span style={{ color: "var(--color-ink-400)" }}>{t("taskLabel")} </span>
+              <span style={{ color: "var(--color-ink-400)", textDecoration: "line-through" }}>
+                {subtask.deleted_parent_title}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--color-crit)", marginInlineStart: 4 }}>
+                Deleted
+              </span>
+            </span>
+          ) : null}
           {subtask.priority && (
             <span>
               <span style={{ color: "var(--color-ink-400)" }}>{t("priorityLabel")} </span>

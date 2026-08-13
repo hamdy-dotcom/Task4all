@@ -7,6 +7,7 @@ import {
   CheckSquare,
   ClipboardList,
   Users,
+  Trash2,
 } from "lucide-react";
 import type { FileItemProp, HistoryEntryProp } from "@/components/work-item/types";
 import FilesTab from "@/components/work-item/FilesTab";
@@ -21,6 +22,7 @@ import {
   type ApproveInitiativeState,
   type RejectInitiativeState,
 } from "@/app/(app)/initiatives/actions";
+import { type DeleteWorkItemState } from "@/app/(app)/work-items/delete-action";
 
 type WorkStatus =
   | "not_started"
@@ -77,6 +79,7 @@ interface Initiative {
   team_name: string | null;
   parent_title: string | null;
   parent_id: string | null;
+  deleted_parent_title?: string | null;
   rejection_reason: string | null;
 }
 
@@ -114,6 +117,10 @@ interface InitiativeDetailProps {
     prevState: RejectInitiativeState,
     formData: FormData
   ) => Promise<RejectInitiativeState>;
+  deleteAction: (
+    prevState: DeleteWorkItemState,
+    formData: FormData
+  ) => Promise<DeleteWorkItemState>;
 }
 
 type TabKey = "details" | "tasks" | "files" | "history";
@@ -130,6 +137,7 @@ export default function InitiativeDetail({
   canUpload,
   approveAction,
   rejectAction,
+  deleteAction,
 }: InitiativeDetailProps) {
   const t = useTranslations("initiatives");
   const tCommon = useTranslations("common");
@@ -150,6 +158,11 @@ export default function InitiativeDetail({
     RejectInitiativeState,
     FormData
   >(rejectAction, null);
+
+  const [deleteState, doDelete, isDeleting] = useActionState<
+    DeleteWorkItemState,
+    FormData
+  >(deleteAction, null);
 
   const showApprovalActions =
     isSuperAdmin && initiative.approval_status === "pending";
@@ -218,6 +231,42 @@ export default function InitiativeDetail({
             {initiative.approval_status && (
               <ApprovalPill status={initiative.approval_status} />
             )}
+            {isSuperAdmin && (
+              <form action={doDelete} style={{ display: "contents" }}>
+                <input type="hidden" name="id" value={initiative.id ?? ""} />
+                <button
+                  type="submit"
+                  disabled={isDeleting}
+                  title="Delete initiative"
+                  onClick={(e) => {
+                    if (!window.confirm(`Delete "${displayTitle}"? This cannot be undone.`)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "999px",
+                    border: "none",
+                    background: "var(--color-crit-soft)",
+                    color: "var(--color-crit)",
+                    cursor: isDeleting ? "not-allowed" : "pointer",
+                    flexShrink: 0,
+                    opacity: isDeleting ? 0.6 : 1,
+                  }}
+                >
+                  <Trash2 size={15} />
+                </button>
+              </form>
+            )}
+            {deleteState?.error && (
+              <span style={{ fontSize: 12, color: "var(--color-crit)" }}>
+                {deleteState.error}
+              </span>
+            )}
           </div>
         </div>
 
@@ -236,7 +285,7 @@ export default function InitiativeDetail({
             color: "var(--color-ink-600)",
           }}
         >
-          {initiative.parent_title && (
+          {initiative.parent_title ? (
             <span>
               <span style={{ color: "var(--color-ink-400)" }}>
                 {t("detail.northStarOf")}{" "}
@@ -252,7 +301,19 @@ export default function InitiativeDetail({
                 {initiative.parent_title}
               </Link>
             </span>
-          )}
+          ) : initiative.deleted_parent_title ? (
+            <span>
+              <span style={{ color: "var(--color-ink-400)" }}>
+                {t("detail.northStarOf")}{" "}
+              </span>
+              <span style={{ color: "var(--color-ink-400)", textDecoration: "line-through" }}>
+                {initiative.deleted_parent_title}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--color-crit)", marginInlineStart: 4 }}>
+                Deleted
+              </span>
+            </span>
+          ) : null}
           {initiative.priority && (
             <span>
               <span style={{ color: "var(--color-ink-400)" }}>

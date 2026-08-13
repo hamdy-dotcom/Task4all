@@ -103,6 +103,7 @@ export default async function NewSubtaskPage({ searchParams }: Props) {
           role: p.role,
         }))}
         defaultTaskId={task_id}
+        isSuperAdmin={profile?.role === "super_admin"}
       />
     </div>
   );

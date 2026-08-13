@@ -32,6 +32,7 @@ interface TaskFormProps {
   teams: Team[];
   profiles: Profile[];
   locale: string;
+  isSuperAdmin?: boolean;
 }
 
 const inputStyle: React.CSSProperties = {
@@ -54,7 +55,7 @@ const labelStyle: React.CSSProperties = {
   color: "var(--color-ink-700)",
 };
 
-export default function TaskForm({ initiatives, teams, profiles, locale }: TaskFormProps) {
+export default function TaskForm({ initiatives, teams, profiles, locale, isSuperAdmin }: TaskFormProps) {
   const router = useRouter();
   const t = useTranslations("tasks");
   const tc = useTranslations("common");
@@ -244,6 +245,24 @@ export default function TaskForm({ initiatives, teams, profiles, locale }: TaskF
             {teams.map((team) => (
               <option key={team.id} value={team.id}>
                 {team.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Owner override (super_admin only) */}
+      {isSuperAdmin && profiles.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <label htmlFor="owner_id" style={labelStyle}>
+            Owner
+          </label>
+          <select id="owner_id" name="owner_id" defaultValue="" style={inputStyle}>
+            <option value="">Myself (default)</option>
+            {profiles.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.full_name ?? p.id}
+                {p.title ? ` — ${p.title}` : ""}
               </option>
             ))}
           </select>

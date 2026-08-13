@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Users,
   AlertTriangle,
+  Trash2,
 } from "lucide-react";
 import type { FileItemProp, HistoryEntryProp } from "@/components/work-item/types";
 import FilesTab from "@/components/work-item/FilesTab";
@@ -24,6 +25,7 @@ import {
   type RejectTaskState,
   type UpdateTaskStatusState,
 } from "@/app/(app)/tasks/actions";
+import { type DeleteWorkItemState } from "@/app/(app)/work-items/delete-action";
 
 type WorkStatus =
   | "not_started"
@@ -69,6 +71,7 @@ interface Task {
   parent_title: string | null;
   parent_title_ar: string | null;
   parent_id: string | null;
+  deleted_parent_title?: string | null;
   rejection_reason: string | null;
 }
 
@@ -123,6 +126,10 @@ interface TaskDetailProps {
     prevState: UpdateTaskStatusState,
     formData: FormData
   ) => Promise<UpdateTaskStatusState>;
+  deleteAction: (
+    prevState: DeleteWorkItemState,
+    formData: FormData
+  ) => Promise<DeleteWorkItemState>;
 }
 
 type TabKey = "details" | "subtasks" | "files" | "history";
@@ -143,6 +150,7 @@ export default function TaskDetail({
   approveAction,
   rejectAction,
   statusAction,
+  deleteAction,
   locale,
 }: TaskDetailProps) {
   const t = useTranslations("tasks");
@@ -170,6 +178,11 @@ export default function TaskDetail({
     UpdateTaskStatusState,
     FormData
   >(statusAction, null);
+
+  const [deleteState, doDelete, isDeleting] = useActionState<
+    DeleteWorkItemState,
+    FormData
+  >(deleteAction, null);
 
   const hasDoneBlocker = blockers.length > 0;
   const showApprovalActions =
@@ -223,6 +236,42 @@ export default function TaskDetail({
             {task.approval_status && (
               <ApprovalPill status={task.approval_status} />
             )}
+            {isSuperAdmin && (
+              <form action={doDelete} style={{ display: "contents" }}>
+                <input type="hidden" name="id" value={task.id ?? ""} />
+                <button
+                  type="submit"
+                  disabled={isDeleting}
+                  title="Delete task"
+                  onClick={(e) => {
+                    if (!window.confirm(`Delete "${displayTitle}"? This cannot be undone.`)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "999px",
+                    border: "none",
+                    background: "var(--color-crit-soft)",
+                    color: "var(--color-crit)",
+                    cursor: isDeleting ? "not-allowed" : "pointer",
+                    flexShrink: 0,
+                    opacity: isDeleting ? 0.6 : 1,
+                  }}
+                >
+                  <Trash2 size={15} />
+                </button>
+              </form>
+            )}
+            {deleteState?.error && (
+              <span style={{ fontSize: 12, color: "var(--color-crit)" }}>
+                {deleteState.error}
+              </span>
+            )}
           </div>
         </div>
 
@@ -241,7 +290,7 @@ export default function TaskDetail({
             color: "var(--color-ink-600)",
           }}
         >
-          {displayParentTitle && (
+          {displayParentTitle ? (
             <span>
               <span style={{ color: "var(--color-ink-400)" }}>
                 {t("initiativeLabel")}{" "}
@@ -257,7 +306,19 @@ export default function TaskDetail({
                 {displayParentTitle}
               </Link>
             </span>
-          )}
+          ) : task.deleted_parent_title ? (
+            <span>
+              <span style={{ color: "var(--color-ink-400)" }}>
+                {t("initiativeLabel")}{" "}
+              </span>
+              <span style={{ color: "var(--color-ink-400)", textDecoration: "line-through" }}>
+                {task.deleted_parent_title}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--color-crit)", marginInlineStart: 4 }}>
+                Deleted
+              </span>
+            </span>
+          ) : null}
           {task.priority && (
             <span>
               <span style={{ color: "var(--color-ink-400)" }}>

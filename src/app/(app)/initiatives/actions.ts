@@ -98,7 +98,10 @@ export async function createInitiative(
       type: "initiative",
       approval_status: "pending",
       status: "not_started",
-      created_by: user.id,
+      created_by:
+        profile.role === "super_admin"
+          ? ((formData.get("owner_id") as string | null) || user.id)
+          : user.id,
     })
     .select("id")
     .single();
