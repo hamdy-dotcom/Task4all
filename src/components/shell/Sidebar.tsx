@@ -50,7 +50,7 @@ function buildNavItems(
       label: t("approvals"),
       href: "/approvals",
       icon: <ThumbsUp size={18} />,
-      roles: ["super_admin", "admin", "team_leader"],
+      roles: ["super_admin"],
       badge: pendingCount > 0 ? pendingCount : undefined,
     },
     {
