@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export type DeleteWorkItemState = { error: string } | null;
 
@@ -40,15 +41,15 @@ export async function deleteWorkItem(
     .update({ parent_id: null, deleted_parent_title: item.title })
     .eq("parent_id", id);
 
-  // Delete rows that reference this work_item via FK before deleting the item
-  // itself. The delete trigger on work_items writes to work_item_history AFTER
-  // the row is gone, causing a FK violation if history rows still exist.
+  // Use the service client so RLS doesn't silently skip these deletes.
+  // Role has already been verified above — this is safe.
+  const service = createServiceClient();
   await Promise.all([
-    supabase.from("work_item_history").delete().eq("work_item_id", id),
-    supabase.from("work_item_assignees").delete().eq("work_item_id", id),
-    supabase.from("work_item_attachments").delete().eq("work_item_id", id),
-    supabase.from("meeting_topics").delete().eq("work_item_id", id),
-    supabase.from("subtask_milestones").delete().eq("work_item_id", id),
+    service.from("work_item_history").delete().eq("work_item_id", id),
+    service.from("work_item_assignees").delete().eq("work_item_id", id),
+    service.from("work_item_attachments").delete().eq("work_item_id", id),
+    service.from("meeting_topics").delete().eq("work_item_id", id),
+    service.from("subtask_milestones").delete().eq("work_item_id", id),
   ]);
 
   const { error } = await supabase.from("work_items").delete().eq("id", id);
