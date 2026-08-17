@@ -34,10 +34,17 @@ export async function deleteWorkItem(
     .single();
   if (!item) return { error: "Item not found" };
 
-  // Single RPC call = single transaction. All trigger-generated history rows
-  // are written and wiped within the same transaction before the row is gone.
+  // Null out direct children so they aren't cascade-deleted with the parent.
+  // Use service client so RLS doesn't silently skip rows owned by other users.
   const service = createServiceClient();
-  const { error } = await service.rpc("delete_work_item_safe", { p_id: id });
+  await service
+    .from("work_items")
+    .update({ parent_id: null, deleted_parent_title: item.title })
+    .eq("parent_id", id);
+
+  // All dependent tables (assignees, attachments, history, etc.) have
+  // ON DELETE CASCADE, so deleting the row cleans everything up automatically.
+  const { error } = await service.from("work_items").delete().eq("id", id);
   if (error) return { error: error.message };
 
   redirect(redirectTo);
